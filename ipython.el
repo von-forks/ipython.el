@@ -294,14 +294,14 @@ gets converted to:
 
 "
   (interactive "*r\n")
-					;(message (format "###DEBUG s:%de:%d" start end))
+  ;;(message (format "###DEBUG s:%de:%d" start end))
   (save-excursion
     (save-match-data
       ;; replace ``In [3]: bla`` with ``>>> bla`` and
       ;;         ``... :   bla`` with ``...    bla``
       (goto-char start)
       (while (re-search-forward ipython-de-input-prompt-regexp end t)
-					;(message "finding 1")
+	;;(message "finding 1")
         (cond ((match-string 3)         ;continued
                (replace-match "... \\3" t nil))
               (t
@@ -327,7 +327,7 @@ in the current *Python* session."
       (let* ((ugly-return nil)
              (sep ";")
              (python-process (or (get-buffer-process (current-buffer))
-					;XXX hack for .py buffers
+				 ;;XXX hack for .py buffers
                                  (get-process py-which-bufname)))
              ;; XXX currently we go backwards to find the beginning of an
              ;; expression part; a more powerful approach in the future might be
