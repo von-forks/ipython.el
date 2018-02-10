@@ -149,7 +149,6 @@
 (defvar ipython-backup-of-py-python-command nil
   "HACK")
 
-
 (defvar ipython-de-input-prompt-regexp "\\(?:
 In \\[[0-9]+\\]: *.*
 ----+> \\(.*
@@ -160,9 +159,9 @@ In \\[[0-9]+\\]: *\\(.*
   "A regular expression to match the IPython input prompt and the python
 command after it. The first match group is for a command that is rewritten,
 the second for a 'normal' command, and the third for a multiline command.")
+
 (defvar ipython-de-output-prompt-regexp "^Out\\[[0-9]+\\]: "
   "A regular expression to match the output prompt of IPython.")
-
 
 (if (not (executable-find ipython-command))
     (message (format "Can't find executable %s - ipython.el *NOT* activated!!!"
@@ -316,7 +315,6 @@ gets converted to:
   "print ';'.join(get_ipython().Completer.all_completions('%s')) #PYTHON-MODE SILENT\n"
   "The string send to ipython to query for all possible completions")
 
-
 ;; xemacs doesn't have `comint-preoutput-filter-functions' so we'll try the
 ;; following wonderful hack to work around this case
 (if (featurep 'xemacs)
@@ -458,27 +456,28 @@ in the current *Python* session."
  "Indentation for the next line in a multiline statement.")
 
 (defun ipython-send-and-indent ()
- "Send the current line to IPython, and calculate the indentation for
+  "Send the current line to IPython, and calculate the indentation for
 the next line."
- (interactive)
- (if ipython-autoindent
-     (let ((line (buffer-substring (point-at-bol) (point)))
-           (after-prompt1)
-           (after-prompt2))
-       (save-excursion
-           (comint-bol t)
-           (if (looking-at py-shell-input-prompt-1-regexp)
-               (setq after-prompt1 t)
-             (setq after-prompt2 (looking-at py-shell-input-prompt-2-regexp)))
-           (with-current-buffer (ipython-get-indenting-buffer)
-             (when after-prompt1
-               (erase-buffer))
-             (when (or after-prompt1 after-prompt2)
-               (delete-region (point-at-bol) (point))
-               (insert line)
-               (newline-and-indent))))))
- ;; send input line to ipython interpreter
- (comint-send-input))
+  (interactive)
+  (if ipython-autoindent
+      (let ((line (buffer-substring (point-at-bol) (point)))
+	    (after-prompt1)
+	    (after-prompt2))
+	(save-excursion
+	  (comint-bol t)
+	  (if (looking-at py-shell-input-prompt-1-regexp)
+	      (setq after-prompt1 t)
+	    (setq after-prompt2 (looking-at py-shell-input-prompt-2-regexp)))
+	  (with-current-buffer (ipython-get-indenting-buffer)
+	    (let ((inhibit-read-only t))
+	      (when after-prompt1
+		(erase-buffer))
+	      (when (or after-prompt1 after-prompt2)
+		(delete-region (point-at-bol) (point))
+		(insert line)
+		(newline-and-indent)))))))
+  ;; send input line to ipython interpreter
+  (comint-send-input))
 
 (defun ipython-indentation-hook (string)
   "Insert indentation string if py-shell-input-prompt-2-regexp
