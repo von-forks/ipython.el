@@ -182,6 +182,7 @@ the second for a 'normal' command, and the third for a multiline command.")
     (make-local-variable 'shell-dirtrackp)
     (setq shell-dirtrackp t)
     (add-hook 'comint-input-filter-functions 'shell-directory-tracker nil t)
+    (add-hook 'comint-preoutput-filter-functions 'ipython-preoutput-filter nil t)
     (if (featurep 'ansi-color)
 	(ansi-color-for-comint-mode-on))
     (define-key py-shell-map [tab] 'ipython-complete)
@@ -500,9 +501,22 @@ matches last process output."
       (setq ipython-indentation-string nil))))
 
 (add-hook 'py-shell-hook
-         (lambda ()
-           (add-hook 'comint-output-filter-functions
-                     'ipython-indentation-hook)))
+	  (lambda ()
+	    (add-hook 'comint-output-filter-functions
+		      'ipython-indentation-hook)))
+
+(defun ipython-preoutput-filter (string)
+  "Filter to apply to output text before inserting it into buffer to remove excess \"Input\" prompts.
+This should be added to `comint-preoutput-filter-functions'."
+  (cl-loop with strings = (split-string string "\n")
+	   for str in strings
+	   for i from 1 to (length strings)	   
+	   if (and (= i 1)
+		   (string-match "^ *In *\\[[0-9]+\\]:.*"
+				 (xterm-color-filter-real str)))
+	   concat ""
+	   else if (< i (length strings)) concat (concat str "\n")
+	   else concat str))
 
 (define-key py-shell-map (kbd "RET") 'ipython-send-and-indent)
 ;;; / end autoindent support
