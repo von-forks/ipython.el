@@ -503,7 +503,7 @@ matches last process output."
 (add-hook 'py-shell-hook
 	  (lambda ()
 	    (add-hook 'comint-output-filter-functions
-		      'ipython-indentation-hook)))
+		      'ipython-indentation-hook nil t)))
 
 (defun ipython-preoutput-filter (string)
   "Filter to apply to output text before inserting it into buffer to remove excess \"Input\" prompts.
