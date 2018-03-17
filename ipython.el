@@ -505,6 +505,8 @@ matches last process output."
 	    (add-hook 'comint-output-filter-functions
 		      'ipython-indentation-hook nil t)))
 
+;; Setting `comint-process-echoes' doesn't do the job of removing excess "Input" prompts,
+;; so this hook function is needed instead.
 (defun ipython-preoutput-filter (string)
   "Filter to apply to output text before inserting it into buffer to remove excess \"Input\" prompts.
 This should be added to `comint-preoutput-filter-functions'."
